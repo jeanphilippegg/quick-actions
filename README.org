@@ -1,0 +1,61 @@
+#+title: quick-actions.el
+
+Compiling and running your code with a single key press is an important programming tool. Many people have this line in their config.
+
+#+begin_src emacs-lisp
+(global-set-key [f5] #'compile)
+#+end_src
+
+This works great if you only ever have one action to perform in a given project. However, in addition to compiling their code, most people also need to run tests, execute the code, etc. This package proposes to replace the previous key binding with this one:
+
+#+begin_src emacs-lisp
+(global-set-key [f5] #'quick-action-select)
+#+end_src
+
+Without further configuration, ~quick-action-select~ just calls ~compile~ directly. You can configure other actions in ~quick-action-alist~. Then, ~quick-action-select~ will prompt (in the minibuffer) for an action to execute.
+
+[[./prompt.png]]
+
+Advantages:
+ - Unlimited number of actions, not just ~compile~. The same key is used for all actions. Only relevant actions are displayed in a given context.
+ - Common interface for all programming languages. Usually, each programming mode has its own specific way of executing the code, testing, debugging, etc. Once you learn how to debug, compile or run a program in a programming languages, you create an action, then forget about the specificities.
+ - Actions are arbitrary lisp functions. You can call ~compile~ to execute shell commands, as well as functions specific to your language.
+
+* Installation
+
+For now, ~quick-actions.el~ must be installed manually. If it proves useful to others, I will publish it on MELPA.
+
+* Configuration
+
+You can define these actions in your ~init.el~. (Example for C++.)
+
+#+begin_src emacs-lisp
+(defun ACT-compile ()
+  "Action to call compile directly. Will prompt the user for a command to execute."
+  (call-interactively 'compile))
+
+(defun ACT-cpp-compile (project-root build-config &optional target)
+  "Action to build and run a makefile target. (For C++)"
+  (let* ((build-config-dir (concat project-root "build/" build-config "/"))
+	 (compile-command (concat "cmake -DCMAKE_BUILD_TYPE=" build-config " -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -B " build-config-dir " -S " project-root " && make -k --no-print-directory -C " build-config-dir " " target)))
+    (compile compile-command)))
+
+(global-set-key [f5] #'quick-action-select)
+#+end_src
+
+Then, you can set ~quick-action-alist~ in your project's ~.dir-locals.el~:
+
+#+begin_src emacs-lisp
+((nil . ((quick-action-alist . (("Compile" ACT-compile)
+				("Compile-Debug" ACT-cpp-compile "~/project-root/" "Debug")
+				("Compile-Release" ACT-cpp-compile "~/project-root/" "Release")
+				("Run" ACT-cpp-compile "~/project-root/" "Debug" "run_main")
+				("Clean" ACT-cpp-compile "~/project-root/" "Debug" "clean")
+				("gdb" (lambda () (call-interactively 'gdb)))
+				("gdb (gdb-restore-windows)" gdb-restore-windows)
+				("Tests" ACT-cpp-compile "~/project-root/" "Debug" "run_tests"))))))
+#+end_src
+
+As you can see in this example, each element in the alist is composed of a name, a function and the function's arguments.
+
+Your last selected action is remembered on later invocations of ~quick-action-select~, in a given file.
