@@ -35,8 +35,12 @@ You can define these actions in your ~init.el~. (Example for C++.)
   (call-interactively 'compile))
 
 (defun ACT-cpp-compile (project-root build-config &optional target)
-  "Action to build and run a makefile target. (For C++)"
-  (let* ((build-config-dir (concat project-root "build/" build-config "/"))
+  "Action to build and run a makefile target. (For C++)
+
+If project-root is nil, use `project-current' to find the project root."
+  (let* ((project-root (or project-root
+			   (cdr (project-current))))
+	 (build-config-dir (concat project-root "build/" build-config "/"))
 	 (compile-command (concat "cmake -DCMAKE_BUILD_TYPE=" build-config " -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -B " build-config-dir " -S " project-root " && make -k --no-print-directory -C " build-config-dir " " target)))
     (compile compile-command)))
 
@@ -47,13 +51,13 @@ Then, you can set ~quick-action-alist~ in your project's ~.dir-locals.el~:
 
 #+begin_src emacs-lisp
 ((nil . ((quick-action-alist . (("Compile" ACT-compile)
-				("Compile-Debug" ACT-cpp-compile "~/project-root/" "Debug")
-				("Compile-Release" ACT-cpp-compile "~/project-root/" "Release")
-				("Run" ACT-cpp-compile "~/project-root/" "Debug" "run_main")
-				("Clean" ACT-cpp-compile "~/project-root/" "Debug" "clean")
+				("Compile-Debug" ACT-cpp-compile nil "Debug")
+				("Compile-Release" ACT-cpp-compile nil "Release")
+				("Run" ACT-cpp-compile nil "Debug" "run_main")
+				("Clean" ACT-cpp-compile nil "Debug" "clean")
 				("gdb" (lambda () (call-interactively 'gdb)))
 				("gdb (gdb-restore-windows)" gdb-restore-windows)
-				("Tests" ACT-cpp-compile "~/project-root/" "Debug" "run_tests"))))))
+				("Tests" ACT-cpp-compile nil "Debug" "run_tests"))))))
 #+end_src
 
 As you can see in this example, each element in the alist is composed of a name, a function and the function's arguments.
