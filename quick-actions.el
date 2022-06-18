@@ -59,8 +59,8 @@ Else, prompt for an ACTION among `quick-action-alist' keys and execute its assoc
 		(quick-action (car entry))
 		(func (cadr entry))
 		(args (cddr entry)))
-	   (apply func args)
-	   (setq last-quick-action quick-action)))
+	   (setq last-quick-action quick-action)
+	   (apply func args)))
 	(t
 	 (let* ((default (if (and last-quick-action
 				  (assoc last-quick-action quick-action-alist))
@@ -73,7 +73,7 @@ Else, prompt for an ACTION among `quick-action-alist' keys and execute its assoc
 		(entry (assoc quick-action quick-action-alist))
 		(func (cadr entry))
 		(args (cddr entry)))
-	   (apply func args)
-	   (setq last-quick-action quick-action)))))
+	   (setq last-quick-action quick-action)
+	   (apply func args)))))
 
 (provide 'quick-actions)
