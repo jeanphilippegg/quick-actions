@@ -34,7 +34,7 @@ with `quick-action-select'
 
  FUNC is the symbol of a function and ARGS is a list of arguments passed to FUNC."
   :type '(alist :key-type string
-		:value-type (list function sexp))
+                :value-type (list function sexp))
   :safe #'listp)
 
 (defvar last-quick-action nil)
@@ -53,27 +53,27 @@ If `quick-action-alist' contains a single item, do not prompt and execute this i
 Else, prompt for an ACTION among `quick-action-alist' keys and execute its associated function."
   (interactive)
   (cond ((not quick-action-alist)
-	 (call-interactively #'compile))
-	((equal (length quick-action-alist) 1)
-	 (let* ((entry (car quick-action-alist))
-		(quick-action (car entry))
-		(func (cadr entry))
-		(args (cddr entry)))
-	   (setq last-quick-action quick-action)
-	   (apply func args)))
-	(t
-	 (let* ((default (if (and last-quick-action
-				  (assoc last-quick-action quick-action-alist))
-			     last-quick-action
-			   (caar quick-action-alist)))
-		(prompt (format "Quick action (default %s): " default))
-		(completion-ignore-case t)
-		(quick-action (completing-read prompt (map-keys quick-action-alist)
-					       nil t nil 'quick-action-history default))
-		(entry (assoc quick-action quick-action-alist))
-		(func (cadr entry))
-		(args (cddr entry)))
-	   (setq last-quick-action quick-action)
-	   (apply func args)))))
+         (call-interactively #'compile))
+        ((equal (length quick-action-alist) 1)
+         (let* ((entry (car quick-action-alist))
+                (quick-action (car entry))
+                (func (cadr entry))
+                (args (cddr entry)))
+           (setq last-quick-action quick-action)
+           (apply func args)))
+        (t
+         (let* ((default (if (and last-quick-action
+                                  (assoc last-quick-action quick-action-alist))
+                             last-quick-action
+                           (caar quick-action-alist)))
+                (prompt (format "Quick action (default %s): " default))
+                (completion-ignore-case t)
+                (quick-action (completing-read prompt (map-keys quick-action-alist)
+                                               nil t nil 'quick-action-history default))
+                (entry (assoc quick-action quick-action-alist))
+                (func (cadr entry))
+                (args (cddr entry)))
+           (setq last-quick-action quick-action)
+           (apply func args)))))
 
 (provide 'quick-actions)
