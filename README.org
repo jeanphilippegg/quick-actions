@@ -39,7 +39,7 @@ You can define these actions in your ~init.el~. (Example for C++.)
 
 If project-root is nil, use `project-current' to find the project root."
   (let* ((project-root (or project-root
-			   (cdr (project-current))))
+			   (project-root (project-current))))
 	 (build-config-dir (concat project-root "build/" build-config "/"))
 	 (compile-command (concat "cmake -DCMAKE_BUILD_TYPE=" build-config " -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -B " build-config-dir " -S " project-root " && make -k --no-print-directory -C " build-config-dir " " target)))
     (compile compile-command)))
